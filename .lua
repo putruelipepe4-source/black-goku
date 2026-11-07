@@ -1,232 +1,344 @@
--- =============================================================================
--- SCRIPT PREMIUM OPTIMIZADO PARA JNKIE (LUAU) - COMPLETO
--- =============================================================================
-
--- [+] OPTIMIZACIÓN DE SERVICIOS
+-- BQM Menu - Estilo Dibujo
 local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
-local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
-local LocalPlayer = Players.LocalPlayer
+local RunService = game:GetService("RunService")
+local VIM = game:GetService("VirtualInputManager")
 
--- --- CONFIGURACIÓN DE ESTADOS (VARIABLES MÓDULOS) ---
-local Modulos = {
-    -- General
-    Spin = false,
-    AutoHeal = false,
-    EspSafeZone = false,
-    AutoSkipATM = false,
-    WalkSpeedValue = 16,
-    TpItemsMansion = false,
-    -- Combat
-    SilentAim = false,
-    AiAim = false,
-    -- Config
-    JoinServerID = "",
-    InfoATM = false,
-    ShowPing = true,
-    FixShowFPS = true
-}
+local LP = Players.LocalPlayer
+local PlayerGui = LP:WaitForChild("PlayerGui", 10)
 
--- --- [+] SISTEMA DE FPS Y PING (OPTIMIZADO) ---
-local fps = 0
-local ping = 0
-
--- FPS Loop alternativo / Fix
-RunService.RenderStepped:Connect(function(deltaTime)
-    if Modulos.FixShowFPS then
-        fps = math.floor(1 / deltaTime)
-    end
-end)
-
--- Ping Loop cada segundo (Ahorro de CPU)
-task.spawn(function()
-    while task.wait(1) do
-        if Modulos.ShowPing then
-            ping = math.floor(LocalPlayer:GetNetworkPing() * 1000)
-        end
-    end
-end)
-
--- --- CREACIÓN DE INTERFAZ GRÁFICA (GUI) ---
+-- Crear ScreenGui
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "JnkiePanelPremium"
+ScreenGui.Name = "BQM_Menu"
 ScreenGui.ResetOnSpawn = false
-ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
+ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+ScreenGui.Parent = PlayerGui
 
--- [+] BOTÓN CON IMAGEN FLOTANTE
-local BotonFlotante = Instance.new("ImageButton")
-BotonFlotante.Size = UDim2.new(0, 55, 0, 55)
-BotonFlotante.Position = UDim2.new(0, 20, 0, 20)
-BotonFlotante.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-BotonFlotante.Image = "rbxassetid://6031097229"
-local CornerBoton = Instance.new("UICorner", BotonFlotante)
-CornerBoton.CornerRadius = UDim.new(0, 12)
-BotonFlotante.Parent = ScreenGui
-
--- Hacer el botón flotante arrastrable (Drag)
-local dragging, dragInput, dragStart, startPos
-BotonFlotante.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-        dragging = true
-        dragStart = input.Position
-        startPos = BotonFlotante.Position
-    end
-end)
-BotonFlotante.InputChanged:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
-        dragInput = input
-    end
-end)
-UserInputService.InputChanged:Connect(function(input)
-    if input == dragInput and dragging then
-        local delta = input.Position - dragStart
-        BotonFlotante.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
-    end
-end)
-UserInputService.InputEnded:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-        dragging = false
-    end
-end)
-
--- VENTANA PRINCIPAL (PANEL)
+-- Frame principal con estilo dibujo
 local MainFrame = Instance.new("Frame")
-MainFrame.Size = UDim2.new(0, 500, 0, 320)
-MainFrame.Position = UDim2.new(0.5, -250, 0.5, -160)
-MainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
-MainFrame.Visible = false
-local CornerMain = Instance.new("UICorner", MainFrame)
-CornerMain.CornerRadius = UDim.new(0, 8)
+MainFrame.Name = "MainFrame"
+MainFrame.Size = UDim2.new(0, 320, 0, 400)
+MainFrame.Position = UDim2.new(0.5, -160, 0.5, -200)
+MainFrame.BackgroundColor3 = Color3.fromRGB(255, 250, 240)
+MainFrame.BackgroundTransparency = 0.05
+MainFrame.BorderSizePixel = 3
+MainFrame.BorderColor3 = Color3.fromRGB(80, 80, 80)
 MainFrame.Parent = ScreenGui
 
--- Alternar visibilidad con el botón flotante
-BotonFlotante.MouseButton1Click:Connect(function()
+-- Esquinas redondeadas estilo dibujo
+local UICorner = Instance.new("UICorner")
+UICorner.CornerRadius = UDim.new(0, 12)
+UICorner.Parent = MainFrame
+
+-- Borde irregular estilo sketch
+local UIStroke = Instance.new("UIStroke")
+UIStroke.Color = Color3.fromRGB(60, 60, 60)
+UIStroke.Thickness = 2
+UIStroke.Parent = MainFrame
+
+-- Título del menú
+local Title = Instance.new("TextLabel")
+Title.Size = UDim2.new(1, 0, 0, 50)
+Title.Position = UDim2.new(0, 0, 0, 0)
+Title.BackgroundColor3 = Color3.fromRGB(255, 220, 180)
+Title.BackgroundTransparency = 0.1
+Title.BorderSizePixel = 0
+Title.Text = "✨ BQM ✨"
+Title.TextColor3 = Color3.fromRGB(60, 60, 60)
+Title.TextSize = 28
+Title.Font = Enum.Font.FredokaOne
+Title.Parent = MainFrame
+
+local TitleCorner = Instance.new("UICorner")
+TitleCorner.CornerRadius = UDim.new(0, 12)
+TitleCorner.Parent = Title
+
+-- Función para crear botones estilo dibujo
+local function createButton(name, position, callback)
+    local Button = Instance.new("TextButton")
+    Button.Name = name
+    Button.Size = UDim2.new(0.85, 0, 0, 60)
+    Button.Position = position
+    Button.BackgroundColor3 = Color3.fromRGB(255, 240, 220)
+    Button.BackgroundTransparency = 0.1
+    Button.BorderSizePixel = 2
+    Button.BorderColor3 = Color3.fromRGB(100, 100, 100)
+    Button.Text = name
+    Button.TextColor3 = Color3.fromRGB(50, 50, 50)
+    Button.TextSize = 22
+    Button.Font = Enum.Font.FredokaOne
+    Button.AutoButtonColor = true
+    Button.Parent = MainFrame
+    
+    local BtnCorner = Instance.new("UICorner")
+    BtnCorner.CornerRadius = UDim.new(0, 10)
+    BtnCorner.Parent = Button
+    
+    local BtnStroke = Instance.new("UIStroke")
+    BtnStroke.Color = Color3.fromRGB(80, 80, 80)
+    BtnStroke.Thickness = 1.5
+    BtnStroke.Parent = Button
+    
+    Button.MouseButton1Click:Connect(callback)
+    return Button
+end
+
+-- Variables para las funciones
+local fishingEnabled = false
+local minigameEnabled = false
+local autoClickerEnabled = false
+local emojiFrame = nil
+
+-- Función de Fishing
+local function startFishing()
+    fishingEnabled = not fishingEnabled
+    if fishingEnabled then
+        -- Código de fishing aquí
+        task.spawn(function()
+            while fishingEnabled do
+                -- Lógica de fishing con los settings proporcionados
+                task.wait(1)
+            end
+        end)
+    end
+end
+
+-- Función de Auto Minigame
+local function startMinigame()
+    minigameEnabled = not minigameEnabled
+    if minigameEnabled then
+        task.spawn(function()
+            local lastClick = 0
+            local lastInGreen = false
+            
+            local function doClick(x, y)
+                pcall(function()
+                    VIM:SendMouseButtonEvent(x, y, 0, true, game, 1)
+                    task.wait(0.03)
+                    VIM:SendMouseButtonEvent(x, y, 0, false, game, 1)
+                end)
+            end
+            
+            local function getText()
+                local ok, result = pcall(function()
+                    for _, g in pairs(PlayerGui:GetDescendants()) do
+                        if (g:IsA("TextLabel") or g:IsA("TextButton")) and g.Visible then
+                            local t = string.lower(tostring(g.Text or ""))
+                            if string.find(t, "hits left") or string.find(t, "tap when") or string.find(t, "green target") then
+                                return g
+                            end
+                        end
+                    end
+                    return nil
+                end)
+                return ok and result or nil
+            end
+            
+            local function getBar(textLabel)
+                if not textLabel then return nil end
+                local best, bestW = nil, 0
+                local parents = {}
+                if textLabel.Parent then
+                    table.insert(parents, textLabel.Parent)
+                    if textLabel.Parent.Parent then table.insert(parents, textLabel.Parent.Parent) end
+                end
+                for _, root in pairs(parents) do
+                    for _, g in pairs(root:GetDescendants()) do
+                        if (g:IsA("Frame") or g:IsA("ImageLabel")) and g.Visible then
+                            local sz = g.AbsoluteSize
+                            if sz.X > 180 and sz.Y >= 8 and sz.Y <= 40 and sz.X > bestW then
+                                bestW = sz.X
+                                best = g
+                            end
+                        end
+                    end
+                end
+                return best
+            end
+            
+            local function readBar(bar)
+                if not bar then return nil end
+                local barPos, barSize = bar.AbsolutePosition, bar.AbsoluteSize
+                if barSize.X < 50 then return nil end
+                local g1, g2, needle = nil, nil, nil
+                local roots = {bar}
+                if bar.Parent then table.insert(roots, bar.Parent) end
+                for _, root in pairs(roots) do
+                    for _, g in pairs(root:GetDescendants()) do
+                        if g:IsA("GuiObject") and g.Visible then
+                            local pos, sz, c = g.AbsolutePosition, g.AbsoluteSize, g.BackgroundColor3
+                            local name = string.lower(g.Name)
+                            local rel = ((pos.X + sz.X / 2) - barPos.X) / barSize.X
+                            if rel >= -0.05 and rel <= 1.05 then
+                                if c.G > 0.5 and c.G > c.R + 0.2 and c.G > c.B + 0.15 and sz.X > 20 and sz.Y >= 4 then
+                                    g1 = math.clamp((pos.X - barPos.X) / barSize.X, 0, 1)
+                                    g2 = math.clamp((pos.X + sz.X - barPos.X) / barSize.X, 0, 1)
+                                end
+                                local thin = sz.X <= 10 and sz.Y >= 6
+                                local white = c.R > 0.85 and c.G > 0.85 and c.B > 0.85
+                                local named = string.find(name, "needle") or string.find(name, "marker") or string.find(name, "cursor") or string.find(name, "pointer") or string.find(name, "tick")
+                                if named or (thin and white) or (thin and sz.Y >= barSize.Y * 0.5) then
+                                    needle = math.clamp(rel, 0, 1)
+                                end
+                            end
+                        end
+                    end
+                end
+                if g1 and g2 and needle then
+                    return {
+                        inGreen = (needle >= g1 and needle <= g2),
+                        x = barPos.X + barSize.X / 2,
+                        y = barPos.Y + barSize.Y / 2
+                    }
+                end
+                return nil
+            end
+            
+            while minigameEnabled do
+                local textLbl = getText()
+                if textLbl then
+                    local info = readBar(getBar(textLbl))
+                    if info then
+                        if info.inGreen then
+                            if not lastInGreen and tick() - lastClick > 0.15 then
+                                lastClick = tick()
+                                doClick(info.x, info.y)
+                            end
+                            lastInGreen = true
+                        else
+                            lastInGreen = false
+                        end
+                    else
+                        lastInGreen = false
+                    end
+                else
+                    lastInGreen = false
+                end
+                task.wait()
+            end
+        end)
+    end
+end
+
+-- Función de Auto Clicker con emoji arrastrable
+local function startAutoClicker()
+    autoClickerEnabled = not autoClickerEnabled
+    
+    if autoClickerEnabled then
+        -- Crear emoji arrastrable
+        emojiFrame = Instance.new("Frame")
+        emojiFrame.Name = "EmojiDrag"
+        emojiFrame.Size = UDim2.new(0, 60, 0, 60)
+        emojiFrame.Position = UDim2.new(0.5, -30, 0.5, -30)
+        emojiFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+        emojiFrame.BackgroundTransparency = 1
+        emojiFrame.BorderSizePixel = 0
+        emojiFrame.Parent = ScreenGui
+        
+        local EmojiLabel = Instance.new("TextLabel")
+        EmojiLabel.Size = UDim2.new(1, 0, 1, 0)
+        EmojiLabel.BackgroundTransparency = 1
+        EmojiLabel.Text = "👆"
+        EmojiLabel.TextSize = 50
+        EmojiLabel.Font = Enum.Font.GothamBold
+        EmojiLabel.Parent = emojiFrame
+        
+        -- Hacer arrastrable
+        local dragging = false
+        local dragInput, dragStart, startPos
+        
+        EmojiLabel.InputBegan:Connect(function(input)
+            if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+                dragging = true
+                dragStart = input.Position
+                startPos = emojiFrame.Position
+                
+                input.Changed:Connect(function()
+                    if input.UserInputState == Enum.UserInputState.End then
+                        dragging = false
+                    end
+                end)
+            end
+        end)
+        
+        EmojiLabel.InputChanged:Connect(function(input)
+            if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+                dragInput = input
+            end
+        end)
+        
+        UserInputService.InputChanged:Connect(function(input)
+            if input == dragInput and dragging then
+                local delta = input.Position - dragStart
+                emojiFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+            end
+        end)
+        
+        -- Auto click en la posición del emoji
+        task.spawn(function()
+            local lastAutoClick = 0
+            local ClickDelay = 0.30
+            
+            local function doClick(x, y)
+                pcall(function()
+                    VIM:SendMouseButtonEvent(x, y, 0, true, game, 1)
+                    task.wait(0.03)
+                    VIM:SendMouseButtonEvent(x, y, 0, false, game, 1)
+                end)
+            end
+            
+            while autoClickerEnabled and emojiFrame do
+                if tick() - lastAutoClick >= ClickDelay then
+                    lastAutoClick = tick()
+                    local pos = emojiFrame.AbsolutePosition
+                    local size = emojiFrame.AbsoluteSize
+                    doClick(pos.X + size.X / 2, pos.Y + size.Y / 2)
+                end
+                task.wait()
+            end
+        end)
+    else
+        if emojiFrame then
+            emojiFrame:Destroy()
+            emojiFrame = nil
+        end
+    end
+end
+
+-- Crear botones
+local fishingBtn = createButton("🎣 Fishing", UDim2.new(0.075, 0, 0, 70), startFishing)
+local minigameBtn = createButton("🎮 Auto Minigame", UDim2.new(0.075, 0, 0, 150), startMinigame)
+local clickerBtn = createButton("👆 Auto Clicker", UDim2.new(0.075, 0, 0, 230), startAutoClicker)
+
+-- Botón de cerrar
+local CloseBtn = Instance.new("TextButton")
+CloseBtn.Name = "CloseBtn"
+CloseBtn.Size = UDim2.new(0, 40, 0, 40)
+CloseBtn.Position = UDim2.new(1, -45, 0, 5)
+CloseBtn.BackgroundColor3 = Color3.fromRGB(255, 150, 150)
+CloseBtn.BackgroundTransparency = 0.1
+CloseBtn.BorderSizePixel = 2
+CloseBtn.BorderColor3 = Color3.fromRGB(100, 100, 100)
+CloseBtn.Text = "✕"
+CloseBtn.TextColor3 = Color3.fromRGB(50, 50, 50)
+CloseBtn.TextSize = 24
+CloseBtn.Font = Enum.Font.FredokaOne
+CloseBtn.Parent = MainFrame
+
+local CloseCorner = Instance.new("UICorner")
+CloseCorner.CornerRadius = UDim.new(0, 8)
+CloseCorner.Parent = CloseBtn
+
+CloseBtn.MouseButton1Click:Connect(function()
     MainFrame.Visible = not MainFrame.Visible
 end)
 
--- PANEL LATERAL (MENÚ DE 4 BOTONES)
-local LeftMenu = Instance.new("Frame")
-LeftMenu.Size = UDim2.new(0, 140, 1, 0)
-LeftMenu.BackgroundColor3 = Color3.fromRGB(15, 15, 18)
-LeftMenu.Parent = MainFrame
-local CornerLeft = Instance.new("UICorner", LeftMenu)
-CornerLeft.CornerRadius = UDim.new(0, 8)
-
-local Layout = Instance.new("UIListLayout")
-Layout.Parent = LeftMenu
-Layout.Padding = UDim.new(0, 6)
-
--- CONTENEDOR DERECHO (OPCIONES DINÁMICAS)
-local ContentFrame = Instance.new("ScrollingFrame")
-ContentFrame.Size = UDim2.new(1, -150, 1, -40)
-ContentFrame.Position = UDim2.new(0, 145, 0, 35)
-ContentFrame.BackgroundTransparency = 1
-ContentFrame.CanvasSize = UDim2.new(0, 0, 2, 0)
-ContentFrame.Parent = MainFrame
-
-local ContentLayout = Instance.new("UIListLayout")
-ContentLayout.Parent = ContentFrame
-ContentLayout.Padding = UDim.new(0, 8)
-
--- TOP STATS (FPS & PING)
-local StatsLabel = Instance.new("TextLabel")
-StatsLabel.Size = UDim2.new(1, -150, 0, 25)
-StatsLabel.Position = UDim2.new(0, 145, 0, 5)
-StatsLabel.BackgroundTransparency = 1
-StatsLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
-StatsLabel.TextSize = 12
-StatsLabel.Font = Enum.Font.SourceSansBold
-StatsLabel.Text = "FPS: 0 | PING: 0 ms"
-StatsLabel.Parent = MainFrame
-
--- Hilo de actualización de Texto Stats
-task.spawn(function()
-    while task.wait(0.2) do
-        StatsLabel.Text = "FPS: " .. fps .. " | PING: " .. ping .. " ms"
+-- Toggle para abrir/cerrar con tecla
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+    if gameProcessed then return end
+    if input.KeyCode == Enum.KeyCode.RightShift then
+        MainFrame.Visible = not MainFrame.Visible
     end
 end)
 
--- --- FUNCIONES DEL MENÚ (CAMBIO DE PESTAÑAS) ---
-local function LimpiarContenido()
-    for _, child in ipairs(ContentFrame:GetChildren()) do
-        if not child:IsA("UIListLayout") then
-            child:Destroy()
-        end
-    end
-end
-
-local function CrearSwitch(texto, estadoInicial, callback)
-    local Frame = Instance.new("Frame")
-    Frame.Size = UDim2.new(1, -10, 0, 30)
-    Frame.BackgroundTransparency = 1
-    
-    local Text = Instance.new("TextLabel")
-    Text.Size = UDim2.new(0.7, 0, 1, 0)
-    Text.BackgroundTransparency = 1
-    Text.Text = "[ + ] " .. texto
-    Text.TextColor3 = Color3.fromRGB(230, 230, 230)
-    Text.TextXAlignment = Enum.TextXAlignment.Left
-    Text.Font = Enum.Font.SourceSans
-    Text.TextSize = 14
-    Text.Parent = Frame
-    
-    local Btn = Instance.new("TextButton")
-    Btn.Size = UDim2.new(0.25, 0, 0, 22)
-    Btn.Position = UDim2.new(0.7, 0, 0, 4)
-    Btn.BackgroundColor3 = estadoInicial and Color3.fromRGB(46, 204, 113) or Color3.fromRGB(192, 41, 43)
-    Btn.Text = estadoInicial and "ON" or "OFF"
-    Btn.TextColor3 = Color3.fromRGB(255, 255, 255)
-    local CornerBtn = Instance.new("UICorner", Btn)
-    CornerBtn.CornerRadius = UDim.new(0, 4)
-    Btn.Parent = Frame
-    
-    local activo = estadoInicial
-    Btn.MouseButton1Click:Connect(function()
-        activo = not activo
-        Btn.Text = activo and "ON" or "OFF"
-        Btn.BackgroundColor3 = activo and Color3.fromRGB(46, 204, 113) or Color3.fromRGB(192, 41, 43)
-        callback(activo)
-    end)
-    
-    Frame.Parent = ContentFrame
-end
-
--- PESTAÑA: GENERAL
-local function CargarGeneral()
-    LimpiarContenido()
-    
-    CrearSwitch("SPIN (USAR CON ANTI AIM)", Modulos.Spin, function(v) Modulos.Spin = v end)
-    CrearSwitch("AUTO HEAL (AUTO BLOOD BAG)", Modulos.AutoHeal, function(v) Modulos.AutoHeal = v end)
-    CrearSwitch("ESP VER SI ESTA EN SAFE ZONE", Modulos.EspSafeZone, function(v) Modulos.EspSafeZone = v end)
-    CrearSwitch("AUTO SKIP MINIJUEGO DE ATM/FISHING", Modulos.AutoSkipATM, function(v) Modulos.AutoSkipATM = v end)
-    CrearSwitch("WALKSPEED (VELOCIDAD)", false, function(v) 
-        if v then LocalPlayer.Character.Humanoid.WalkSpeed = 50 else LocalPlayer.Character.Humanoid.WalkSpeed = 16 end
-    end)
-    CrearSwitch("TP ITEMS (MANSION BETA)", Modulos.TpItemsMansion, function(v) Modulos.TpItemsMansion = v end)
-end
-
--- PESTAÑA: COMBAT
-local function CargarCombat()
-    LimpiarContenido()
-    
-    CrearSwitch("Improved Silent Aim accuracy", Modulos.SilentAim, function(v) Modulos.SilentAim = v end)
-    CrearSwitch("AI AIM (REVISA MOVIMIENTOS)", Modulos.AiAim, function(v) Modulos.AiAim = v end)
-end
-
--- PESTAÑA: CONFIG
-local function CargarConfig()
-    LimpiarContenido()
-    
-    -- TextBox para Join Server ID
-    local BoxFrame = Instance.new("Frame")
-    BoxFrame.Size = UDim2.new(1, -10, 0, 35)
-    BoxFrame.BackgroundTransparency = 1
-    
-    local Label = Instance.new("TextLabel")
-    Label.Size = UDim2.new(0.5, 0, 1, 0)
-    Label.BackgroundTransparency = 1
-    Label.Text = "[ + ] Join Server ID:"
-    Label.TextColor3 = Color3.fromRGB(230, 230, 230)
-    Label.TextXAlignment = Enum.TextXAlignment.Left
-    Label.Font = Enum.Font.
+print("✨ BQM Menu cargado! Presiona RightShift para abrir/cerrar ✨")
