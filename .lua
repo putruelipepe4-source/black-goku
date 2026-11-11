@@ -1,5 +1,6 @@
 
--- 🎄 TOM LUA | TOM LIVE ITEMS 🎄
+-- 🎄 TOM LUA - TOM LIVE ITEMS 🎄
+-- LocalScript en StarterPlayerScripts
 
 local Players = game:GetService("Players")
 local player = Players.LocalPlayer
@@ -7,52 +8,82 @@ local player = Players.LocalPlayer
 local gui = Instance.new("ScreenGui")
 gui.Name = "TomLuaMenu"
 gui.ResetOnSpawn = false
+gui.IgnoreGuiInset = true
+gui.DisplayOrder = 10
 gui.Parent = player:WaitForChild("PlayerGui")
 
+-- MENU PRINCIPAL
 local frame = Instance.new("Frame")
 frame.Name = "MainMenu"
-frame.Size = UDim2.fromOffset(60, 60)
-frame.Position = UDim2.new(0.5, -30, 0.5, -30)
-frame.BackgroundColor3 = Color3.fromRGB(100, 0, 20)
-frame.BorderSizePixel = 2
-frame.BorderColor3 = Color3.fromRGB(255, 190, 50)
+frame.Size = UDim2.fromScale(0.92, 0.90)
+frame.Position = UDim2.fromScale(0.04, 0.05)
+frame.BackgroundColor3 = Color3.fromRGB(75, 0, 20)
+frame.BorderSizePixel = 0
+frame.ClipsDescendants = true
 frame.Parent = gui
 
 local corner = Instance.new("UICorner")
-corner.CornerRadius = UDim.new(0, 8)
+corner.CornerRadius = UDim.new(0, 18)
 corner.Parent = frame
 
--- IMAGEN TOM Y JERRY
+-- IMAGEN ORIGINAL
 local image = Instance.new("ImageLabel")
-image.Name = "TomJerryImage"
+image.Name = "TomJerryBackground"
 image.Size = UDim2.fromScale(1, 1)
+image.Position = UDim2.fromScale(0, 0)
 image.BackgroundTransparency = 1
 image.Image = "rbxassetid://99858075849221"
 image.ScaleType = Enum.ScaleType.Crop
+image.ZIndex = 1
 image.Parent = frame
 
 local imageCorner = Instance.new("UICorner")
-imageCorner.CornerRadius = UDim.new(0, 8)
+imageCorner.CornerRadius = UDim.new(0, 18)
 imageCorner.Parent = image
 
--- TOM LUA
-local title = Instance.new("TextLabel")
-title.Size = UDim2.new(1, 0, 0.4, 0)
-title.BackgroundColor3 = Color3.fromRGB(100, 0, 20)
-title.BackgroundTransparency = 0.15
-title.Text = "TOM LUA"
-title.TextColor3 = Color3.fromRGB(255, 220, 150)
-title.TextScaled = true
-title.Font = Enum.Font.GothamBold
-title.Parent = frame
+-- TEXTOS EN POSICIONES ALEATORIAS
+local textos = {
+    "TOM LUA",
+    "TOM LIVE ITEMS",
+    "TOM LUA",
+    "TOM LIVE ITEMS",
+    "TOM LUA",
+    "TOM LIVE ITEMS",
+    "TOM LUA",
+    "TOM LIVE ITEMS",
+    "TOM LUA"
+}
 
--- TOM LIVE ITEMS
-local subtitle = Instance.new("TextLabel")
-subtitle.Position = UDim2.new(0, 0, 0.7, 0)
-subtitle.Size = UDim2.new(1, 0, 0.3, 0)
-subtitle.BackgroundTransparency = 1
-subtitle.Text = "TOM LIVE ITEMS"
-subtitle.TextColor3 = Color3.new(1, 1, 1)
-subtitle.TextScaled = true
-subtitle.Font = Enum.Font.GothamBold
-subtitle.Parent = frame
+math.randomseed(os.clock() * 100000)
+
+for i, texto in ipairs(textos) do
+
+    local label = Instance.new("TextLabel")
+    label.Name = "TomLuaText" .. i
+    label.Size = UDim2.fromScale(0.48, 0.07)
+
+    local x = math.random(5, 47) / 100
+    local y = math.random(5, 90) / 100
+
+    label.Position = UDim2.fromScale(x, y)
+    label.BackgroundColor3 = Color3.fromRGB(90, 0, 20)
+    label.BackgroundTransparency = 0.2
+    label.Text = texto
+    label.TextColor3 = Color3.fromRGB(255, 220, 150)
+    label.TextScaled = true
+    label.Font = Enum.Font.GothamBold
+    label.Rotation = math.random(-12, 12)
+    label.ZIndex = 3
+    label.Parent = frame
+
+    local stroke = Instance.new("UIStroke")
+    stroke.Color = Color3.fromRGB(255, 190, 50)
+    stroke.Thickness = 1.5
+    stroke.Parent = label
+
+    local labelCorner = Instance.new("UICorner")
+    labelCorner.CornerRadius = UDim.new(0, 8)
+    labelCorner.Parent = label
+end
+
+print("TOM LUA - TOM LIVE ITEMS cargado!")
